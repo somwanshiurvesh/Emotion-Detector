@@ -2,8 +2,7 @@ import requests
 
 def emotion_detector(text_to_analyse):
     """
-    Detect emotions from text using Watson NLP API.
-    Returns a dictionary with emotion scores.
+    Detect emotions and handle errors properly.
     """
 
     url = "https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict"
@@ -25,14 +24,6 @@ def emotion_detector(text_to_analyse):
             response_dict = response.json()
             emotions = response_dict['emotionPredictions'][0]['emotion']
 
-            return {
-                'anger': emotions['anger'],
-                'disgust': emotions['disgust'],
-                'fear': emotions['fear'],
-                'joy': emotions['joy'],
-                'sadness': emotions['sadness']
-            }
-
         elif response.status_code == 400:
             return None
 
@@ -40,11 +31,23 @@ def emotion_detector(text_to_analyse):
             return None
 
     except:
-        # Fallback (ensures program never crashes)
-        return {
+        # fallback (prevents crash)
+        emotions = {
             'anger': 0.1,
             'disgust': 0.0,
             'fear': 0.1,
             'joy': 0.7,
             'sadness': 0.1
         }
+
+    # Find dominant emotion
+    dominant_emotion = max(emotions, key=emotions.get)
+
+    return {
+        'anger': emotions['anger'],
+        'disgust': emotions['disgust'],
+        'fear': emotions['fear'],
+        'joy': emotions['joy'],
+        'sadness': emotions['sadness'],
+        'dominant_emotion': dominant_emotion
+    }
